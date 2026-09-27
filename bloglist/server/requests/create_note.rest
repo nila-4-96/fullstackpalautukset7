@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJ1bmdsZXkiLCJpZCI6IjZhMDQ0YzNkY2RjOTEyMzU3Y2Q5MTg0MSIsImlhdCI6MTc3ODY2NjYyMX0.zZwAyg69yoLxwcscqn5fcOl2ZIxgFrjAii8xFyhiIOQ
+
+{
+  "title": "Bomb site",
+  "author": "Bungley",
+  "url": "http://kabyrra.com/bomb-site",
+  "likes": 5
+}

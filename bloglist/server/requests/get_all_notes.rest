@@ -1,0 +1,29 @@
+GET http://localhost:3003/api/blogs
+
+###
+
+DELETE http://localhost:3003/api/blogs/2
+
+###
+
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "An indie site",
+  "author": "Pim",
+  "url": "https://www.google.com",
+  "likes": 4
+}
+
+###
+
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Another indie site",
+  "author": "Pim",
+  "url": "https://www.wikipedia.com",
+  "likes": 1
+}
