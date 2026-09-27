@@ -13,14 +13,23 @@ import LoginForm from './components/LoginForm'
 import ErrorBoundary from './components/ErrorBoundary'
 import Catchall from './components/Catchall'
 
+import { useBlog, useBlogActions } from './store'
 import { useNotificationActions } from './NotificationStore'
+import { useUser, useUserActions } from './UserStore'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
-  const [user, setUser] = useState(null)
+  const blogs = useBlog()
+  const { add, initialise, like, remove } = useBlogActions()
+  const user = useUser()
+  const { setUser } = useUserActions()
+
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const { addNotif } = useNotificationActions()
+
+  useEffect(() => {
+    initialise()
+  }, [initialise])
 
   const style = { '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' } }
 
@@ -31,71 +40,22 @@ const App = () => {
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       blogService.setToken(user.token)
+      setUser(user)
     }
-  }, [])
+  }, [setUser])
 
-  useEffect(() => {
-    blogService.getAll().then((initialBlogs) => {
-      setBlogs(initialBlogs)
-    })
-  }, [])
-
-  const addBlog = (blogObject) => {
-    // blogFormRef.current.toggleVisibility()
-    blogService.create(blogObject).then((returnedBlog) => {
-      setBlogs(blogs.concat(returnedBlog))
-
-      addNotif(
-        'successfully added blog ' +
-          returnedBlog.title +
-          ' by ' +
-          returnedBlog.author,
-      )
-    })
+  const addBlog = async (blogObject) => {
+    await add(blogObject)
+    addNotif(`blog ${blogObject.title} by ${blogObject.author} added`)
   }
 
-  const deleteBlog = (id) => {
-    blogService
-      .rmServBlog(id)
-      .then(() => {
-        setBlogs(blogs.filter((b) => b.id !== id))
-      })
-      .then(() => {
-        addNotif('blog removed')
-      })
+  const deleteBlog = async (blog) => {
+    await remove(blog)
+    addNotif('blog removed')
   }
 
-  const handleLikes = (blog) => {
-    blogService
-      .update(blog.id, {
-        user: {
-          username: blog.user.username,
-          name: blog.user.name,
-          id: blog.user.id,
-        },
-        id: blog.id,
-        title: blog.title,
-        author: blog.author,
-        url: blog.url,
-        likes: blog.likes + 1,
-      })
-      .then((updatedBlog) => {
-        // console.log('updatedBlog:', updatedBlog)
-        setBlogs(
-          blogs.map((newBlog) =>
-            newBlog.id !== blog.id
-              ? newBlog
-              : {
-                  id: updatedBlog.id,
-                  user: blog.user,
-                  title: updatedBlog.title,
-                  author: updatedBlog.author,
-                  url: updatedBlog.url,
-                  likes: updatedBlog.likes,
-                },
-          ),
-        )
-      })
+  const handleLikes = async (blog) => {
+    await like(blog)
   }
 
   const handleLogin = async (event) => {
@@ -190,7 +150,7 @@ const App = () => {
                 />
               }
             />
-            <Route path="/blogs" element={<BlogList blogs={blogs} />} />
+            <Route path="/blogs" element={<BlogList />} />
             <Route path="/create" element={<BlogForm createBlog={addBlog} />} />
             <Route
               path="/login"

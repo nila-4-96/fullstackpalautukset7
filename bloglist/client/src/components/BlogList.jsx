@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import {
   Table,
   TableBody,
@@ -10,22 +9,14 @@ import {
 } from '@mui/material'
 import { Link } from 'react-router-dom'
 import Notification from './Notification'
-import blogService from '../services/notes'
 import { useNotification } from '../NotificationStore'
+import { useBlog } from '../store'
 
-const BlogList = ({ blogs }) => {
+const BlogList = () => {
   const notification = useNotification()
+  const blogs = useBlog()
 
   // throw new Error('simulated error')
-
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      blogService.setToken(user.token)
-    }
-  }, [])
 
   return (
     <div>

@@ -26,7 +26,7 @@ const Blog = ({ blog, user, deleteBlog, handleLikes }) => {
 
   const handleDelete = () => {
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
-      deleteBlog(id)
+      deleteBlog(blog)
       navigate('/blogs')
     }
   }
