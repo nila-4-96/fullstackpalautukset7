@@ -80,4 +80,17 @@ notesRouter.put('/:id', async (request, response) => {
   }
 })
 
+notesRouter.post('/:id/comments', async (request, response) => {
+  const body = request.body
+  const blog = await Blog.findById(request.params.id)
+
+  if (blog) {
+    blog.comments = blog.comments.concat(body.comment)
+    const updatedBlog = await blog.save()
+    response.json(updatedBlog)
+  } else {
+    return response.status(404).end()
+  }
+})
+
 module.exports = notesRouter

@@ -1,12 +1,8 @@
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import {
-  Button,
-  Typography,
-  Card,
-  CardActions,
-  CardContent,
-} from '@mui/material'
+import { Button, Typography, CardActions, CardContent } from '@mui/material'
 import Catchall from './Catchall'
+import { useBlogActions } from '../store'
+import { useState } from 'react'
 
 const Blog = ({ blog, user, deleteBlog, handleLikes }) => {
   const blogStyle = {
@@ -16,6 +12,9 @@ const Blog = ({ blog, user, deleteBlog, handleLikes }) => {
     borderWidth: 1,
     marginBottom: 5,
   }
+
+  const [commText, setCommText] = useState('')
+  const { comment } = useBlogActions()
 
   const id = useParams().id
   const navigate = useNavigate()
@@ -29,6 +28,14 @@ const Blog = ({ blog, user, deleteBlog, handleLikes }) => {
       deleteBlog(blog)
       navigate('/blogs')
     }
+  }
+
+  const addComment = async (event) => {
+    event.preventDefault()
+    if (commText !== '') {
+      await comment(blog.id, commText)
+    }
+    setCommText('')
   }
 
   // {console.log('blog.user.username:', blog.user.username)}
@@ -53,6 +60,13 @@ const Blog = ({ blog, user, deleteBlog, handleLikes }) => {
           <Typography variant="body2">user: {blog.user.name}</Typography>
 
           <Typography variant="body2">likes: {blog.likes}</Typography>
+
+          <Typography variant="body2">comments:</Typography>
+          <ul>
+            {blog.comments.map((comment) => (
+              <li key={comment}>{comment}</li>
+            ))}
+          </ul>
         </CardContent>
 
         <CardActions>
@@ -64,6 +78,25 @@ const Blog = ({ blog, user, deleteBlog, handleLikes }) => {
             >
               like
             </Button>
+          )}
+        </CardActions>
+
+        <CardActions>
+          {user && (
+            <div>
+              <form onSubmit={(event) => addComment(event)}>
+                <input
+                  type="text"
+                  value={commText}
+                  onChange={(event) => setCommText(event.target.value)}
+                />
+                <br />
+                <br />
+                <Button type="submit" color="primary" variant="contained">
+                  add comment
+                </Button>
+              </form>
+            </div>
           )}
         </CardActions>
 

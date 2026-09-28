@@ -6,22 +6,25 @@ import loginService from './services/login'
 import { Routes, Route, Link, useMatch, useNavigate } from 'react-router-dom'
 import Blog from './components/Blog'
 import BlogList from './components/BlogList'
+import UserList from './components/UserList'
 import Home from './components/Home'
 import Footer from './components/Footer'
 import BlogForm from './components/BlogForm'
 import LoginForm from './components/LoginForm'
 import ErrorBoundary from './components/ErrorBoundary'
 import Catchall from './components/Catchall'
+import User from './components/User'
 
 import { useBlog, useBlogActions } from './store'
 import { useNotificationActions } from './NotificationStore'
-import { useUser, useUserActions } from './UserStore'
+import { useUser, useUsers, useUserActions } from './UserStore'
 
 const App = () => {
   const blogs = useBlog()
   const { add, initialise, like, remove } = useBlogActions()
   const user = useUser()
-  const { setUser } = useUserActions()
+  const { setUser, initialiseUsers } = useUserActions()
+  const users = useUsers()
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -30,6 +33,10 @@ const App = () => {
   useEffect(() => {
     initialise()
   }, [initialise])
+
+  useEffect(() => {
+    initialiseUsers()
+  }, [initialiseUsers])
 
   const style = { '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' } }
 
@@ -84,8 +91,10 @@ const App = () => {
 
   const match = useMatch('/blogs/:id')
   const blog = match ? blogs.find((blog) => blog.id === match.params.id) : null
-
-  // console.log('blog:', blog)
+  const userMatch = useMatch('/users/:id')
+  const userSelected = userMatch
+    ? users.find((user) => user.id === userMatch.params.id)
+    : null
 
   return (
     <Container>
@@ -95,6 +104,10 @@ const App = () => {
             <Toolbar>
               <Button color="inherit" component={Link} to="/" sx={style}>
                 home
+              </Button>
+
+              <Button color="inherit" component={Link} to="/users" sx={style}>
+                users
               </Button>
 
               <Button color="inherit" component={Link} to="/blogs" sx={style}>
@@ -150,6 +163,10 @@ const App = () => {
                 />
               }
             />
+
+            <Route path="/users/:id" element={<User user={userSelected} />} />
+
+            <Route path="/users" element={<UserList />} />
             <Route path="/blogs" element={<BlogList />} />
             <Route path="/create" element={<BlogForm createBlog={addBlog} />} />
             <Route
