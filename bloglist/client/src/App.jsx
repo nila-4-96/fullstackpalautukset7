@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { AppBar, Button, Container, Toolbar } from '@mui/material'
 import blogService from './services/notes'
 import loginService from './services/login'
@@ -14,6 +14,7 @@ import LoginForm from './components/LoginForm'
 import ErrorBoundary from './components/ErrorBoundary'
 import Catchall from './components/Catchall'
 import User from './components/User'
+import persistentUser from './services/persistentUser'
 
 import { useBlog, useBlogActions } from './store'
 import { useNotificationActions } from './NotificationStore'
@@ -25,9 +26,6 @@ const App = () => {
   const user = useUser()
   const { setUser, initialiseUsers } = useUserActions()
   const users = useUsers()
-
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const { addNotif } = useNotificationActions()
 
   useEffect(() => {
@@ -43,9 +41,9 @@ const App = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
+    const user = persistentUser.getUser()
+
+    if (user) {
       blogService.setToken(user.token)
       setUser(user)
     }
@@ -65,20 +63,17 @@ const App = () => {
     await like(blog)
   }
 
-  const handleLogin = async (event) => {
-    event.preventDefault()
+  const handleLogin = async (username, password) => {
     try {
       const user = await loginService.login({
         username,
         password,
       })
 
-      window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
+      persistentUser.saveUser(user)
 
       blogService.setToken(user.token)
       setUser(user)
-      setUsername('')
-      setPassword('')
 
       addNotif('successfully logged in, ' + user.name)
       navigate('/blogs')
@@ -110,7 +105,7 @@ const App = () => {
                 users
               </Button>
 
-              <Button color="inherit" component={Link} to="/blogs" sx={style}>
+              <Button color="inherit" component={Link} to="/" sx={style}>
                 blogs
               </Button>
 
@@ -138,7 +133,7 @@ const App = () => {
                   onClick={() => {
                     setUser(null)
                     blogService.setToken(null)
-                    window.localStorage.removeItem('loggedBlogappUser')
+                    persistentUser.removeUser()
                     addNotif('successfully logged out')
                     navigate('/blogs')
                   }}
@@ -172,20 +167,10 @@ const App = () => {
             <Route
               path="/login"
               element={
-                <LoginForm
-                  username={username}
-                  password={password}
-                  handleUsernameChange={({ target }) =>
-                    setUsername(target.value)
-                  }
-                  handlePasswordChange={({ target }) =>
-                    setPassword(target.value)
-                  }
-                  handleLogin={handleLogin}
-                />
+                <LoginForm handleLogin={handleLogin} />
               }
             />
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<BlogList />} />
             <Route path="*" element={<Catchall />} />
           </Routes>
         </ErrorBoundary>

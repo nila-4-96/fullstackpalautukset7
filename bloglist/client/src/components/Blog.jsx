@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { Button, Typography, CardActions, CardContent } from '@mui/material'
+import { Button, Typography, CardActions, CardContent, TextField } from '@mui/material'
 import Catchall from './Catchall'
 import { useBlogActions } from '../store'
 import { useState } from 'react'
@@ -37,9 +37,6 @@ const Blog = ({ blog, user, deleteBlog, handleLikes }) => {
     }
     setCommText('')
   }
-
-  // {console.log('blog.user.username:', blog.user.username)}
-  // {console.log('logged user:', JSON.parse(window.localStorage.getItem('loggedBlogappUser')).username)}
 
   return (
     <div className="blog">
@@ -85,8 +82,8 @@ const Blog = ({ blog, user, deleteBlog, handleLikes }) => {
           {user && (
             <div>
               <form onSubmit={(event) => addComment(event)}>
-                <input
-                  type="text"
+                <TextField
+                  label="comment"
                   value={commText}
                   onChange={(event) => setCommText(event.target.value)}
                 />

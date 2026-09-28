@@ -18,7 +18,7 @@ const User = ({ user }) => {
     <div className="user">
       <div style={blogStyle}>
         <CardContent>
-          <Typography variant="h5" component="div">
+          <Typography variant="h5">
             {user.name}
           </Typography>
 
